@@ -14,6 +14,8 @@ data =  {
         }
 
 def download():
+    if os.name != 'posix':
+        raise Exception("Error: this script (download.py) is intended for use on POSIX-compliant systems.")
 
     os.system("rm -r ../data")
     os.system("mkdir ../data")
@@ -30,10 +32,11 @@ def download():
 
         fs.retrieve_files_from_article(article_id,"../data")
 
-        print(f'Downloaded {number_of_files} files for article "{article_name}" (#{article_id})')
+        print(f'Downloaded {number_of_files} files from article "{article_name}" (#{article_id})')
 
+    os.system("mkdir ../data/figshare")
     os.system("mv ../data/figshare_*/* ../data/figshare/")
-    os.system("rmdir ../data/figshare_*")
+    os.system("rm -r ../data/figshare_*")
 
     print("Collated files")
 
