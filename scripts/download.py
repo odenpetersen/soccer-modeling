@@ -41,6 +41,7 @@ def download():
     print("Collated files")
 
     os.system('unzip "../data/figshare/*.zip" -d "../data/figshare/"')
+    os.system("rm ../data/figshare/*.zip")
 
     print("Unzipped files")
 
