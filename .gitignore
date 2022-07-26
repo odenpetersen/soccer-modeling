@@ -1,1 +1,6 @@
 data/
+soccer-venv/
+dist/
+figshare.egg-info/
+.vscode
+.eggs
