@@ -3,8 +3,34 @@ import pandas as pd
 
 #Training functions should train a model and return a lambda function wrapper that takes in feature vectors and outputs the relevant number
 
-def train_next_goal_home_prior_model(events, matches):
-    return lambda match : None
+def train_next_goal_home_prior_model(prior_matches):
+    from sklearn.linear_model import LinearRegression
+    results = extract_match_results(prior_matches)
+    teamnames = sorted([team for team in results if team not in ['s1', 's2', 'date']])
+
+    # doubling data by expressing it in terms of either team, with an extra column to track who is home
+    results['home'] = 1
+    y, X = results['s1'].values, results[['home'] + teamnames].values
+    y2, X2 = results['s2'].values, -results[['home'] + teamnames].values
+    y = np.concatenate([y, y2], axis=0)
+    X = np.concatenate([X, X2], axis=0)
+
+    lr: LinearRegression = LinearRegression().fit(X, y)
+
+    def format_match(match):
+        home, away = extract_teams_from_match(match)
+        return np.array([1] + [(team == home) - (team == away) for team in teamnames]).reshape((1, -1))
+
+    def predictor(match):
+        features_home = format_match(match)
+        expected_goals_home = lr.predict(features_home)
+        features_away = -format_match(match)
+        expected_goals_away = lr.predict(features_away)
+
+        return expected_goals_home / (expected_goals_home + expected_goals_away)
+
+    return predictor, lr, format_match
+
     
 def train_next_goal_home_model(events, matches):
     return lambda match,event : None
@@ -75,6 +101,49 @@ def simulate(models,match,match_event,lambda_H,lambda_A,n=2):
     frequencies = Counter(simulations)
 
     return {k:v/n for k,v in frequencies.items()}
+
+
+
+# Helpers
+
+def extract_match_results(matches):
+    def f(row):
+        # print(row)
+        teams, scores = row['label'].strip().split(',')
+        t1, t2 = teams.strip().split(' - ')
+        s1, s2 = map(int, scores.strip().split(' - '))
+        date = row['dateutc']
+        # return {'t1':t1, 't2':t2, 's1':s1, 's2':s2, 'date':date}
+        return {'s1': s1, 's2': s2, 'date': date, t1: 1, t2: -1}
+
+    results = matches.apply(f, axis=1)
+    # results = pd.DataFrame(results)
+
+    results = pd.DataFrame(list(results))
+    results = results.sort_values(by='date', axis=0).reset_index()
+    results = results.fillna(0)
+
+    return results
+
+def extract_teams_from_match(row):
+    teams, _ = row['label'].strip().split(',')
+    t1, t2 = teams.strip().split(' - ')
+    return t1, t2
+
+# Predicts how many goals are expected of each team using a linear model, 
+# and uses that to calculate the probability that the next goal is from the home team.
+
+def test_train_next_goal_home_prior_model():
+    matches_england = pd.read_json("../data/figshare/matches_England.json")
+    first_matches, second_matches = matches_england.iloc[:len(matches_england)//2, :], matches_england.iloc[len(matches_england)//2:, :]
+
+    predictor, model, formatter = train_next_goal_home_prior_model(first_matches)
+    # print(second_matches.columns)
+
+
+    predictions = second_matches.apply(predictor, axis=1)
+    print(predictions)
+
 
 def main():
     events=pd.read_csv('../data/parsed_England.csv').sort_by(['matchId','eventSec'])
