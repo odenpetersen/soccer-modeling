@@ -140,7 +140,6 @@ def test_train_next_goal_home_prior_model():
     predictor, model, formatter = train_next_goal_home_prior_model(first_matches)
     # print(second_matches.columns)
 
-
     predictions = second_matches.apply(predictor, axis=1)
     print(predictions)
 
