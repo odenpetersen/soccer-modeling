@@ -78,9 +78,9 @@ def simulate(models,match,match_event,lambda_H,lambda_A,n=2):
 def main():
     events=pd.read_csv('../data/parsed_England.csv').sort_by(['matchId','eventSec'])
     #Feature vector for prior match info; should be a numpy array
-    events['match'] = 
+    events['match'] = events.apply(lambda row : ,axis=1)
     #Feature vector for match events; should be a numpy array
-    events['event'] =
+    events['event'] = events.apply(lambda row : ,axis=1)
 
     #Goals scored prior to a particular match event
     matchId = None
@@ -109,7 +109,7 @@ def main():
     events['scores'] = events.apply(lambda row : {row.prior_goals+k for k,v in row.scores})
 
     #Evaluate simulation quality
-    events['surprisal']
+    events['surprisal'] =
 
 if __name__=='__main__':
     main()
