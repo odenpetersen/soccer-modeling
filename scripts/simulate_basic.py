@@ -3,17 +3,18 @@ import pandas as pd
 
 #Training functions should train a model and return a lambda function wrapper that takes in feature vectors and outputs the relevant number
 
-def train_next_goal_home_model(events):
+def train_next_goal_home_prior_model(events, matches):
+    return lambda match : None
+    
+def train_next_goal_home_model(events, matches):
     return lambda match,event : None
 
-def train_next_goal_home_prior_model(events):
+def train_waiting_time_prior_model(events, matches):
     return lambda match : None
 
-def train_waiting_time_model(events):
+def train_waiting_time_model(events, matches):
     return lambda match,event : None
 
-def train_waiting_time_prior_model(events):
-    return lambda match : None
 
 
 def train(events):
