@@ -42,15 +42,7 @@ def parse():
     ignored_columns += ['birthDate']
 
     df = df.drop(ignored_columns,axis=1)
-    df = df.sort_values(['matchId','Pulling via Rebase
-The --rebase option can be used to ensure a linear history by preventing unnecessary merge commits. Many developers prefer rebasing over merging, since it’s like saying, "I want to put my changes on top of what everybody else has done." In this sense, using git pull with the --rebase flag is even more like svn update than a plain git pull.
-
-In fact, pulling with --rebase is such a common workflow that there is a dedicated configuration option for it:
-
-git config --global branch.autosetuprebase always
-After running that command, all git pull commands will integrate via git rebase instead of git merge.
-
-eventSec'])
+    df = df.sort_values(['matchId','eventSec'])
     return df
 
 
